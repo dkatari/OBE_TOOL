@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Batch</title>
+</head>
+
+<body>
+    <h1>Select a Batch</h1>
+    <form action="/batches/select" method="POST">
+        <label for="batch_id">Choose a batch:</label>
+        <select name="batch_id" id="batch_id" required>
+            <% batches.forEach(batch=> { %>
+                <option value="<%= batch.batch_id %>">
+                    Batch: <%= batch.batch_start_year %> - <%= batch.batch_end_year %>
+                </option>
+                <% }); %>
+        </select>
+        <button type="submit">Next</button>
+    </form>
+</body>
+
+</html>
