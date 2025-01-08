@@ -1,94 +1,84 @@
+drop database obe;
 create database OBE;
 use OBE;
 
-CREATE TABLE Batches (
-batch_id INT AUTO_INCREMENT PRIMARY KEY,      
-batch_start_year YEAR NOT NULL,                
-batch_end_year YEAR NOT NULL,                  
-CHECK (batch_start_year <= batch_end_year)     
+-- Users Table
+CREATE TABLE Users (
+    faculty_id VARCHAR(10) PRIMARY KEY,
+    password VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Departments (
-dept_id INT AUTO_INCREMENT PRIMARY KEY,
-dept_name VARCHAR(255) NOT NULL      
+-- Academic Year Table
+CREATE TABLE Academic_Year (
+    academic_year_id INT PRIMARY KEY AUTO_INCREMENT,
+    year VARCHAR(20) NOT NULL UNIQUE
 );
 
-CREATE TABLE Courses (
-course_id INT AUTO_INCREMENT PRIMARY KEY, 
-course_name VARCHAR(255) NOT NULL,  
-course_code VARCHAR(50) NOT NULL,  
-credits INT NOT NULL   
+-- Semester Type Table
+CREATE TABLE Semester_Type (
+    sem_id INT PRIMARY KEY,
+    type ENUM('Odd', 'Even') NOT NULL
 );
 
-CREATE TABLE Faculty (
-faculty_id INT AUTO_INCREMENT PRIMARY KEY, 
-faculty_name VARCHAR(255) NOT NULL, 
-email VARCHAR(255) NOT NULL UNIQUE  
+-- Branch Table
+CREATE TABLE Branch (
+    branch_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Mapping Table (Branch - Semester Type - Academic Year)
+CREATE TABLE Branch_Semester_Mapping (
+    mapping_id INT PRIMARY KEY AUTO_INCREMENT,
+    academic_year_id INT NOT NULL,
+    sem_id INT NOT NULL,
+    branch_id INT NOT NULL,
+    FOREIGN KEY (academic_year_id) REFERENCES Academic_Year(academic_year_id),
+    FOREIGN KEY (sem_id) REFERENCES Semester_Type(sem_id),
+    FOREIGN KEY (branch_id) REFERENCES Branch(branch_id)
+);
+
+-- Subjects Table
+CREATE TABLE Subjects (
+    subject_id INT PRIMARY KEY AUTO_INCREMENT,
+    mapping_id INT NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    L INT NOT NULL,  -- Lecture hours
+    T INT NOT NULL,  -- Tutorial hours
+    P INT NOT NULL,  -- Practical hours
+    S INT NOT NULL,  -- Seminar hours
+    J INT NOT NULL,  -- Project/Job-related hours
+    C INT NOT NULL,  -- Credits
+    max_marks INT NOT NULL,
+    FOREIGN KEY (mapping_id) REFERENCES Branch_Semester_Mapping(mapping_id)
+);
+
+-- Faculty Mapping Table
+CREATE TABLE Faculty_Mapping (
+    faculty_mapping_id INT PRIMARY KEY AUTO_INCREMENT,
+    subject_id INT NOT NULL,
+    faculty_details VARCHAR(255) NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES Subjects(subject_id)
 );
 
 
-CREATE TABLE SemDeptBatch (
-mapping_id INT AUTO_INCREMENT PRIMARY KEY,    
-sem_number INT NOT NULL,                      
-dept_id INT NOT NULL,                          
-batch_id INT NOT NULL,                         
-start_date DATE NOT NULL,                   
-end_date DATE NOT NULL,                     
-FOREIGN KEY (batch_id) REFERENCES Batches(batch_id), 
-FOREIGN KEY (dept_id) REFERENCES Departments(dept_id) 
-);
+-- Insert data into Semester_Type table
+INSERT INTO Semester_Type (sem_id, type)
+VALUES 
+(1, 'Odd'),
+(2, 'Even'),
+(3, 'Odd'),
+(4, 'Even'),
+(5, 'Odd'),
+(6, 'Even'),
+(7, 'Odd'),
+(8, 'Even');
 
-CREATE TABLE SemDeptBatchCourses (
-    mapping_id INT AUTO_INCREMENT PRIMARY KEY,    
-    course_id INT NOT NULL,                        
-    sem_dept_batch_id INT NOT NULL,                
-    semester INT NOT NULL,                         
-    semester_year YEAR NOT NULL,                   
-    FOREIGN KEY (course_id) REFERENCES Courses(course_id), 
-    FOREIGN KEY (sem_dept_batch_id) REFERENCES SemDeptBatch(mapping_id) 
-);
 
-CREATE TABLE SubjectFacultyMapping (
-mapping_id INT AUTO_INCREMENT PRIMARY KEY,  
-course_id INT NOT NULL,   
-faculty_id INT NOT NULL,   
-FOREIGN KEY (course_id) REFERENCES Courses(course_id), 
-FOREIGN KEY (faculty_id) REFERENCES Faculty(faculty_id) 
-);
-
--- INSERT VALUES
-
-INSERT INTO Batches (batch_start_year, batch_end_year) VALUES
-(2022, 2026),
-(2023, 2027),
-(2024, 2028);
-
-INSERT INTO Departments (dept_name) VALUES
-('Computer Science'),
-('Electrical Engineering'),
-('Mechanical Engineering');
-
-INSERT INTO Courses (course_name, course_code, credits) VALUES
-('Data Structures', 'CS101', 3),
-('Digital Logic Design', 'EE201', 4),
-('Thermodynamics', 'ME301', 3);
-
-INSERT INTO Faculty (faculty_name, email) VALUES
-('Dr. Alice Smith', 'alice.smith@example.com'),
-('Dr. Bob Johnson', 'bob.johnson@example.com'),
-('Dr. Carol Davis', 'carol.davis@example.com');
-
-INSERT INTO SemDeptBatch (sem_number, dept_id, batch_id, start_date, end_date) VALUES
-(1, 1, 1, '2022-08-01', '2022-12-15'),
-(2, 1, 1, '2023-01-15', '2023-05-30'),
-(1, 2, 2, '2023-08-01', '2023-12-15');
-
-INSERT INTO SemDeptBatchCourses (course_id, sem_dept_batch_id, semester, semester_year) VALUES
-(1, 1, 1, 2022),
-(2, 2, 2, 2023),
-(3, 3, 1, 2023);
-
-INSERT INTO SubjectFacultyMapping (course_id, faculty_id) VALUES
-(1, 1),
-(2, 2),
-(3, 3);
+-- Insert data into Branch table
+INSERT INTO Branch (name)
+VALUES 
+('CSE - CORE'),
+('CSE - AIML'),
+('CSE - DATA SCIENCE'),
+('CSE - CYBER SECURITY'),
+('CSE - CSBS');
