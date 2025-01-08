@@ -7,7 +7,9 @@ CREATE TABLE Users (
     faculty_id VARCHAR(10) PRIMARY KEY,
     password VARCHAR(255) NOT NULL
 );
-
+insert into Users 
+values
+('CSE101','12');
 -- Academic Year Table
 CREATE TABLE Academic_Year (
     academic_year_id INT PRIMARY KEY AUTO_INCREMENT,
